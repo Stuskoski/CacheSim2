@@ -7,15 +7,23 @@ import java.util.ArrayList;
 
 public class Main {
 
-    private static ArrayList<String> tokenList = new ArrayList<>();
-    private static ArrayList<String> hexTokenList = new ArrayList<>();
-    private static ArrayList<String> decTokenList = new ArrayList<>();
+    private static ArrayList<memoryObj> memoryObjs = new ArrayList<>();
+    private static int n;
+    private static int m;
+    private static int cacheSize;
+    private static int blockSize;
+    private static int numOfBlocks;
+    private static boolean traceFlag;
+    private static File filePath;
+    private static int index;
+    private static int offset;
+    private static int tagSize;
     private static int cacheHits = 0;
     private static int cacheMisses = 0;
     private static double missRatio = 0.0;
     private static int accessesSoFar = 0;
-   // private static int cacheSize;
-   // private static int blockSize;
+    private static int memAddrLength = 32;
+
 
     public static void main(String[] args) {
         /**
@@ -29,12 +37,12 @@ public class Main {
         /**
          * assign variables
          */
-        int n = Integer.parseInt(args[0]);
-        int m = Integer.parseInt(args[1]);
-        int cacheSize = (int) Math.pow(2, (double)n);
-        int blockSize = (int) Math.pow(2, (double)m);
-        boolean traceFlag = false; //true == on, false == off
-        File filePath = new File(args[3]); //check for valid filepath later
+        n = Integer.parseInt(args[0]);
+        m = Integer.parseInt(args[1]);
+        cacheSize = (int) Math.pow(2, (double)n);
+        blockSize = (int) Math.pow(2, (double)m);
+        traceFlag = false; //true == on, false == off
+        filePath = new File(args[3]); //check for valid filepath later
 
 
         /**
@@ -63,6 +71,13 @@ public class Main {
             System.out.println("Invalid Cache size / Block size.");
             System.exit(0);
         }
+
+        //Calc the rest of the info about the cache structure with given information
+        numOfBlocks = cacheSize / blockSize;
+        index = (int)(Math.log((double)numOfBlocks) / (Math.log(2)));
+        offset = (int)(Math.log((double)blockSize) / (Math.log(2)));
+        tagSize = memAddrLength - index - offset;
+
 
         getMemoryAddresses(filePath);
 
@@ -105,7 +120,8 @@ public class Main {
     /**
      * Reads the memory addresses line by line from the file
      * and strips them of all white space.  The function will
-     * then put all the strings into an ArrayList for use later.
+     * then create memory objects based if they are hex or
+     * decimal and then add to arraylist.
      * @param file
      */
     public static void getMemoryAddresses(File file){
@@ -120,7 +136,13 @@ public class Main {
                 if(!line.equals("\n")) {
                     line = line.replaceAll("\\s+|\\n+|\\r+", "");
                     if(!line.equals("")){
-                        tokenList.add(line);
+                        if(line.substring(0, 2).toLowerCase().equals("0x")){ //hex address
+                            memoryObj memObj = new memoryObj(line.substring(2), true);
+                            memoryObjs.add(memObj);
+                        }else{ //decimal address
+                            memoryObj memObj = new memoryObj(line, false);
+                            memoryObjs.add(memObj);
+                        }
                     }
                 }
             }
@@ -128,7 +150,6 @@ public class Main {
             System.out.println("Unable to open file: " + file.toString());
         }
     }
-    String test = "Address|  Tag|  BlockNum|  Cache Entry Tag|  Hit/Miss|  Hits|  Misses|  Accesses|  Miss Ratio";
 
     /**
      * Calculate all the information needed for the memory address
@@ -138,15 +159,12 @@ public class Main {
      * static strings
      */
     public static void runWithTracingOn(){
-        for (String str: tokenList) {
-           if(str.substring(0, 2).toLowerCase().equals("0x")){ //toLowerCase might be redundant since 0x = hex
-               accessesSoFar++;
-               System.out.println(str.substring(2) + "|\t" + "tag|\t" + "blockNum|\t" + "EntryTag|\t" + "miss|\t" +
-                       cacheHits + "|\t" + cacheMisses + "|\t" + accessesSoFar + "|\t" + missRatio);
-               hexTokenList.add(str.substring(2));
-           }else{
-               decTokenList.add(str);
-           }
+
+        //Run through the objects
+        for(memoryObj obj : memoryObjs){
+            accessesSoFar++;
+            System.out.println(obj.getAddress() + "|\t" + "tag|\t" + "blockNum|\t" + "EntryTag|\t" + "miss|\t" +
+                    cacheHits + "|\t" + cacheMisses + "|\t" + accessesSoFar + "|\t" + missRatio);
         }
     }
 
@@ -156,12 +174,9 @@ public class Main {
      * tracing is off.
      */
     public static void runWithTracingOff(){
-        for (String str: tokenList) {
-            if(str.substring(0, 2).toLowerCase().equals("0x")){ //toLowerCase might be redundant since 0x = hex
-                hexTokenList.add(str);
-            }else{
-                decTokenList.add(str);
-            }
+        //Run through the objects
+        for(memoryObj obj : memoryObjs){
+            accessesSoFar++;
         }
     }
 
@@ -173,7 +188,7 @@ public class Main {
         }
         System.out.println();
 
-        System.out.println("memory accesses: " + tokenList.size());
+        System.out.println("memory accesses: " + memoryObjs.size());
 
         System.out.println("hits: " + cacheHits);
 
