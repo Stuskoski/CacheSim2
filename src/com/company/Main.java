@@ -78,15 +78,20 @@ public class Main {
         offset = (int)(Math.log((double)blockSize) / (Math.log(2)));
         tagSize = memAddrLength - index - offset;
 
+        //Create cache since number of blocks is known now
+        Cache.cacheBlocks = numOfBlocks;
+        Cache.createCache();
+
 
         getMemoryAddresses(filePath);
 
-        String test = "Address|  Tag|  BlockNum|  Cache Entry Tag|  Hit/Miss|  Hits|  Misses|  Accesses|  Miss Ratio";
-        String sep = "---------------------------------------------------------------------------------------------";
-        //System.out.println(test.length());
+        String sep = "-----------------------------------------------------------------";
+        System.out.println(sep.length());
 
         if(traceFlag){
-            System.out.println(test);
+            System.out.printf("%10s|%5s|%5s|%5s|%5s|%5s|%5s|%5s|%9s\n", "Addr", "Tag", "Block#", "C Tag",
+                    "H/M", "Hits", "Misses", "MemAcc", "Miss %");
+            //System.out.println(test);
             System.out.println(sep);
             runWithTracingOn();
         }else{
@@ -162,11 +167,11 @@ public class Main {
 
         //Run through the objects
         for(memoryObj obj : memoryObjs){
-            //System.out.println(obj.getAddress() + " : " + obj.calcTag());
             obj.calcTag();
+            Cache.addMemToCache(obj.address, obj.blockNum);
             accessesSoFar++;
-            System.out.println(obj.hexAddress + "|\t" + obj.tag + "|\t" + "blockNum|\t" + "EntryTag|\t" + "miss|\t" +
-                    cacheHits + "|\t" + cacheMisses + "|\t" + accessesSoFar + "|\t" + missRatio);
+            System.out.printf("%10s|%5s|%5s|%5s|%5s|%5s|%5s|%7d|%9s\n", obj.address, obj.tag, obj.index, "C Tag", "miss",
+                    "Hits", "Misses", accessesSoFar, "Miss %");
         }
     }
 

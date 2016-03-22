@@ -1,5 +1,7 @@
 package com.company;
 
+import java.math.BigInteger;
+
 /**
  * Created by augustus on 3/21/16.
  */
@@ -90,6 +92,11 @@ public class memoryObj {
         tag = Integer.toHexString(Integer.parseInt(tagLoc,2));
         index = Integer.toHexString(Integer.parseInt(indexLoc,2));
         offset = Integer.toHexString(Integer.parseInt(offsetLoc,2));
+
+        blockNum = Integer.parseInt(index, 16);
+
+        //Note that the Block Address is the address with the offset bits removed.
+        // Note that the block position is just the index.
 
 
         return hex;
