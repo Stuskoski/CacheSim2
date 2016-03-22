@@ -20,7 +20,6 @@ public class Main {
     public static int tagSize;
     private static int cacheHits = 0;
     private static int cacheMisses = 0;
-    private static double missRatio = 0.0;
     private static int accessesSoFar = 0;
     public static int memAddrLength = 32;
 
@@ -78,6 +77,11 @@ public class Main {
         offset = (int)(Math.log((double)blockSize) / (Math.log(2)));
         tagSize = memAddrLength - index - offset;
 
+        System.out.println("numBlocks: " + numOfBlocks);
+        System.out.println("index; "+index);
+        System.out.println("offset: "+offset);
+        System.out.println("tagSize: "+tagSize);
+
         //Create cache since number of blocks is known now
         Cache.cacheBlocks = numOfBlocks;
         Cache.createCache();
@@ -85,8 +89,8 @@ public class Main {
 
         getMemoryAddresses(filePath);
 
-        String sep = "-----------------------------------------------------------------";
-       // System.out.println(sep.length());
+        String sep = "------------------------------------------------------------------";
+        //System.out.println(sep.length());
 
         if(traceFlag){
             System.out.printf("%10s|%5s|%5s|%5s|%5s|%5s|%5s|%5s|%9s\n", "Addr", "Tag", "Block#", "C Tag",
@@ -172,18 +176,16 @@ public class Main {
             if(Cache.checkForMissOrHit(obj.tag, obj.blockNum)){//hit
                 cacheHits++;
 
-                System.out.printf("%10s|%5s|%5s|%5s|%5s|%5d|%5d|%7d|%9.08f\n", obj.hexAddress, obj.tag, obj.index,
+                System.out.printf("%10s|%5s|%6s|%5s|%5s|%5d|%5d|%7d|%9.08f\n", obj.hexAddress, obj.tag, obj.index,
                         Cache.getCacheAddrAtPos(obj.blockNum), "hit", cacheHits, cacheMisses, accessesSoFar,
                         ((double)cacheMisses / (double)accessesSoFar));
             }else{//miss
                 cacheMisses++;
-                System.out.printf("%10s|%5s|%5s|%5s|%5s|%5d|%5d|%7d|%9.08f\n", obj.hexAddress, obj.tag, obj.index,
+                System.out.printf("%10s|%5s|%6s|%5s|%5s|%5d|%5d|%7d|%9.08f\n", obj.hexAddress, obj.tag, obj.index,
                         Cache.getCacheAddrAtPos(obj.blockNum), "miss", cacheHits, cacheMisses, accessesSoFar,
                         ((double)cacheMisses / (double)accessesSoFar));
             }
             Cache.addMemToCache(obj.tag, obj.blockNum);
-
-
         }
     }
 
@@ -196,6 +198,13 @@ public class Main {
         //Run through the objects
         for(memoryObj obj : memoryObjs){
             accessesSoFar++;
+            obj.calcTag(); // calc all the necessary info about the memory address
+            if(Cache.checkForMissOrHit(obj.tag, obj.blockNum)){//hit
+                cacheHits++;
+            }else{//miss
+                cacheMisses++;
+            }
+            Cache.addMemToCache(obj.tag, obj.blockNum);
         }
     }
 
@@ -213,6 +222,6 @@ public class Main {
 
         System.out.println("misses: " + cacheMisses);
 
-        System.out.printf("miss ratio: %.08f",  ((double)cacheMisses / (double)accessesSoFar));
+        System.out.printf("miss ratio: %.08f\n",  ((double)cacheMisses / (double)accessesSoFar));
     }
 }

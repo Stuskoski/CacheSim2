@@ -2,6 +2,10 @@ package com.company;
 
 /**
  * Created by augustus on 3/22/16.
+ * This is the cache structure which
+ * is just a simple array of strings
+ * that gets manipulated with properties
+ * from the memoryObj
  */
 public class Cache {
     public static int cacheBlocks;
@@ -10,7 +14,7 @@ public class Cache {
     public static void createCache(){
        // System.out.println("cache created with " + cacheBlocks + " blocks");
         cacheArray = new String[cacheBlocks];
-        addMemToCache("test", 5);
+        //addMemToCache("test", 5);
     }
 
     public static void addMemToCache(String mem, int pos){
