@@ -168,17 +168,20 @@ public class Main {
         //Run through the objects
         for(memoryObj obj : memoryObjs){
             accessesSoFar++;
-            obj.calcTag();
-            if(Cache.checkForMissOrHit(obj.blockNum)){
+            obj.calcTag(); // calc all the necessary info about the memory address
+            if(Cache.checkForMissOrHit(obj.tag, obj.blockNum)){//hit
                 cacheHits++;
-                System.out.printf("%10s|%5s|%5s|%5s|%5s|%5d|%5d|%7d|%9s\n", obj.address, obj.tag, obj.index, "C Tag", "hit",
-                        cacheHits, cacheMisses, accessesSoFar, "Miss %");
-            }else{
+
+                System.out.printf("%10s|%5s|%5s|%5s|%5s|%5d|%5d|%7d|%9.08f\n", obj.hexAddress, obj.tag, obj.index,
+                        Cache.getCacheAddrAtPos(obj.blockNum), "hit", cacheHits, cacheMisses, accessesSoFar,
+                        ((double)cacheMisses / (double)accessesSoFar));
+            }else{//miss
                 cacheMisses++;
-                System.out.printf("%10s|%5s|%5s|%5s|%5s|%5d|%5d|%7d|%9s\n", obj.address, obj.tag, obj.index, "C Tag", "miss",
-                        cacheHits, cacheMisses, accessesSoFar, "Miss %");
+                System.out.printf("%10s|%5s|%5s|%5s|%5s|%5d|%5d|%7d|%9.08f\n", obj.hexAddress, obj.tag, obj.index,
+                        Cache.getCacheAddrAtPos(obj.blockNum), "miss", cacheHits, cacheMisses, accessesSoFar,
+                        ((double)cacheMisses / (double)accessesSoFar));
             }
-            Cache.addMemToCache(obj.address, obj.blockNum);
+            Cache.addMemToCache(obj.tag, obj.blockNum);
 
 
         }
@@ -210,6 +213,6 @@ public class Main {
 
         System.out.println("misses: " + cacheMisses);
 
-        System.out.println("miss ratio: " + missRatio);
+        System.out.printf("miss ratio: %.08f",  ((double)cacheMisses / (double)accessesSoFar));
     }
 }

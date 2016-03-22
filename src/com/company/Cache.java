@@ -18,20 +18,31 @@ public class Cache {
         cacheArray[pos] = mem;
     }
 
-    public static void clearCacheSpot(int pos){
-        cacheArray[pos] = null;
+    public static String getCacheAddrAtPos(int pos){
+        if((cacheArray[pos] == null)){
+            return "";
+        }else{
+            return cacheArray[pos];
+        }
+
     }
 
     /**
      * Return true for a cache hit and false for a cache miss.
+     * Not exactly a valid bit but null can act like one.  If
+     * null, there is no data so return a miss.  If not then check
+     * the tag to see if they match.
      * @param pos
      * @return
      */
-    public static boolean checkForMissOrHit(int pos){
+    public static boolean checkForMissOrHit(String addr, int pos){
         if(cacheArray[pos] == null){
             return false;
         }else{
-            return true;
+            if(cacheArray[pos].equals(addr)){
+                return true;
+            }
+            return false;
         }
     }
 
