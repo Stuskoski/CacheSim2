@@ -14,7 +14,6 @@ public class Cache {
     public static void createCache(){
        // System.out.println("cache created with " + cacheBlocks + " blocks");
         cacheArray = new String[cacheBlocks];
-        //addMemToCache("test", 5);
     }
 
     public static void addMemToCache(String mem, int pos){

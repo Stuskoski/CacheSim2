@@ -47,12 +47,12 @@ public class memoryObj {
             addZeros = Main.memAddrLength - bin.length();
         }
 
+        //Add appropriate # of zeros to make the string 32 bits
         String oneZero = "0";
         String addingZeros = "";
         for(int i = 0; i<addZeros; i++){
             addingZeros += oneZero;
         }
-
         bin = addingZeros + bin;
         //System.out.println(bin);
 
