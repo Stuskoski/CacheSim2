@@ -86,7 +86,7 @@ public class Main {
         getMemoryAddresses(filePath);
 
         String sep = "-----------------------------------------------------------------";
-        System.out.println(sep.length());
+       // System.out.println(sep.length());
 
         if(traceFlag){
             System.out.printf("%10s|%5s|%5s|%5s|%5s|%5s|%5s|%5s|%9s\n", "Addr", "Tag", "Block#", "C Tag",
@@ -167,11 +167,20 @@ public class Main {
 
         //Run through the objects
         for(memoryObj obj : memoryObjs){
-            obj.calcTag();
-            Cache.addMemToCache(obj.address, obj.blockNum);
             accessesSoFar++;
-            System.out.printf("%10s|%5s|%5s|%5s|%5s|%5s|%5s|%7d|%9s\n", obj.address, obj.tag, obj.index, "C Tag", "miss",
-                    "Hits", "Misses", accessesSoFar, "Miss %");
+            obj.calcTag();
+            if(Cache.checkForMissOrHit(obj.blockNum)){
+                cacheHits++;
+                System.out.printf("%10s|%5s|%5s|%5s|%5s|%5d|%5d|%7d|%9s\n", obj.address, obj.tag, obj.index, "C Tag", "hit",
+                        cacheHits, cacheMisses, accessesSoFar, "Miss %");
+            }else{
+                cacheMisses++;
+                System.out.printf("%10s|%5s|%5s|%5s|%5s|%5d|%5d|%7d|%9s\n", obj.address, obj.tag, obj.index, "C Tag", "miss",
+                        cacheHits, cacheMisses, accessesSoFar, "Miss %");
+            }
+            Cache.addMemToCache(obj.address, obj.blockNum);
+
+
         }
     }
 
