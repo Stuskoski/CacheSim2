@@ -22,7 +22,7 @@ public class Main {
     private static int cacheMisses = 0;
     private static double missRatio = 0.0;
     private static int accessesSoFar = 0;
-    private static int memAddrLength = 32;
+    public static int memAddrLength = 32;
 
 
     public static void main(String[] args) {
@@ -137,7 +137,7 @@ public class Main {
                     line = line.replaceAll("\\s+|\\n+|\\r+", "");
                     if(!line.equals("")){
                         if(line.substring(0, 2).toLowerCase().equals("0x")){ //hex address
-                            memoryObj memObj = new memoryObj(line.substring(2), true);
+                            memoryObj memObj = new memoryObj(line.substring(2).toLowerCase(), true);
                             memoryObjs.add(memObj);
                         }else{ //decimal address
                             memoryObj memObj = new memoryObj(line, false);
@@ -165,8 +165,8 @@ public class Main {
             //System.out.println(obj.getAddress() + " : " + obj.calcTag());
             obj.calcTag();
             accessesSoFar++;
-           // System.out.println(obj.getAddress() + "|\t" + "tag|\t" + "blockNum|\t" + "EntryTag|\t" + "miss|\t" +
-                   // cacheHits + "|\t" + cacheMisses + "|\t" + accessesSoFar + "|\t" + missRatio);
+            System.out.println(obj.hexAddress + "|\t" + obj.tag + "|\t" + "blockNum|\t" + "EntryTag|\t" + "miss|\t" +
+                    cacheHits + "|\t" + cacheMisses + "|\t" + accessesSoFar + "|\t" + missRatio);
         }
     }
 

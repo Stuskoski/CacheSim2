@@ -5,7 +5,10 @@ package com.company;
  */
 public class memoryObj {
     public String address;
-    public int tag;
+    public String hexAddress;
+    public String tag;
+    public String index;
+    public String offset;
     public int blockNum;
     public int cacheEntryTag;
     public String hitOrMiss;
@@ -22,8 +25,8 @@ public class memoryObj {
     public void setAddress(String address) {this.address = address;}
 
 
-    public int getTag() {return tag;}
-    public void setTag(int tag) {this.tag = tag;}
+    public String getTag() {return tag;}
+    public void setTag(String tag) {this.tag = tag;}
 
 
     public int getBlockNum() {return blockNum;}
@@ -41,24 +44,52 @@ public class memoryObj {
     public void setIsHex(boolean isHex) {this.isHex = isHex;}
 
     public String calcTag(){
-        int dec = 0;
-        String hex = address;
-        String bin = "";
-        String tempAddr = "";
+        int dec;
+        int addZeros = 0;
+        String hex;
+        String bin;
+        String tagLoc = "";
+        String indexLoc = "";
+        String offsetLoc =  "";
 
-        if(!isHex){ //convert dec to hex if address is not in hex already
+        if(isHex){ //convert dec to hex if address is not in hex already
+            hex = address;
+            hexAddress = hex;
+            dec = Integer.parseInt(hex, 16);
+            bin = Integer.toBinaryString(dec);
+        }else{
             dec = Integer.parseInt(address);
             hex = Integer.toHexString(dec);
+            hexAddress = hex;
             bin = Integer.toBinaryString(dec);
         }
 
-        String oct = "0000";
-        for(int i = 0;  i<hex.length(); i++){
-
+        if(bin.length() < Main.memAddrLength){
+            addZeros = Main.memAddrLength - bin.length();
         }
 
-        //System.out.println(hex.length());
-        System.out.println(bin);
+        String oneZero = "0";
+        String addingZeros = "";
+        for(int i = 0; i<addZeros; i++){
+            addingZeros += oneZero;
+        }
+
+        bin = addingZeros + bin;
+
+        tagLoc = bin.substring(0, Main.tagSize-1);
+        indexLoc = bin.substring(Main.tagSize, Main.tagSize+Main.index-1);
+        offsetLoc = bin.substring(Main.tagSize+Main.index, bin.length()-1);
+
+
+        //System.out.println(tagLoc + "\t" + indexLoc + "\t" + offsetLoc);
+        //System.out.println(Integer.toHexString(Integer.parseInt(tagLoc,2)) + "\t\t\t\t\t" +
+        //        Integer.toHexString(Integer.parseInt(indexLoc,2)) + "\t" +
+        //        Integer.toHexString(Integer.parseInt(offsetLoc,2)));
+        //System.out.println();
+
+        tag = Integer.toHexString(Integer.parseInt(tagLoc,2));
+        index = Integer.toHexString(Integer.parseInt(indexLoc,2));
+        offset = Integer.toHexString(Integer.parseInt(offsetLoc,2));
 
 
         return hex;
