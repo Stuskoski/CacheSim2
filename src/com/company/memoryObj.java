@@ -43,12 +43,22 @@ public class memoryObj {
     public String calcTag(){
         int dec = 0;
         String hex = address;
+        String bin = "";
+        String tempAddr = "";
 
         if(!isHex){ //convert dec to hex if address is not in hex already
             dec = Integer.parseInt(address);
             hex = Integer.toHexString(dec);
+            bin = Integer.toBinaryString(dec);
         }
 
+        String oct = "0000";
+        for(int i = 0;  i<hex.length(); i++){
+
+        }
+
+        //System.out.println(hex.length());
+        System.out.println(bin);
 
 
         return hex;

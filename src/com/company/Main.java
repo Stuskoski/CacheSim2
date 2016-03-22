@@ -15,9 +15,9 @@ public class Main {
     private static int numOfBlocks;
     private static boolean traceFlag;
     private static File filePath;
-    private static int index;
-    private static int offset;
-    private static int tagSize;
+    public static int index;
+    public static int offset;
+    public static int tagSize;
     private static int cacheHits = 0;
     private static int cacheMisses = 0;
     private static double missRatio = 0.0;
@@ -162,9 +162,11 @@ public class Main {
 
         //Run through the objects
         for(memoryObj obj : memoryObjs){
+            //System.out.println(obj.getAddress() + " : " + obj.calcTag());
+            obj.calcTag();
             accessesSoFar++;
-            System.out.println(obj.getAddress() + "|\t" + "tag|\t" + "blockNum|\t" + "EntryTag|\t" + "miss|\t" +
-                    cacheHits + "|\t" + cacheMisses + "|\t" + accessesSoFar + "|\t" + missRatio);
+           // System.out.println(obj.getAddress() + "|\t" + "tag|\t" + "blockNum|\t" + "EntryTag|\t" + "miss|\t" +
+                   // cacheHits + "|\t" + cacheMisses + "|\t" + accessesSoFar + "|\t" + missRatio);
         }
     }
 
