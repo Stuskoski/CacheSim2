@@ -75,6 +75,8 @@ public class Main {
         numOfBlocks = cacheSize / blockSize;
         index = (int)(Math.log((double)numOfBlocks) / (Math.log(2)));
         offset = (int)(Math.log((double)blockSize) / (Math.log(2)));
+
+
         tagSize = memAddrLength - index - offset;
 
         //System.out.println("numBlocks: " + numOfBlocks);
@@ -176,13 +178,17 @@ public class Main {
             if(Cache.checkForMissOrHit(obj.tag, obj.blockNum)){//hit
                 cacheHits++;
 
-                System.out.printf("%10s|%7s|%7s|%7s|%5s|%5d|%6d|%7d|%9.08f\n", obj.hexAddress, obj.tag, obj.index,
-                        Cache.getCacheAddrAtPos(obj.blockNum), "hit", cacheHits, cacheMisses, accessesSoFar,
+                System.out.printf("%10s|%7s|%7s|%7s|%5s|%5d|%6d|%7d|%9.08f\n", obj.hexAddress.toLowerCase(),
+                        obj.tag.toLowerCase(), obj.index.toLowerCase(),
+                        Cache.getCacheAddrAtPos(obj.blockNum).toLowerCase(),
+                        "hit", cacheHits, cacheMisses, accessesSoFar,
                         ((double)cacheMisses / (double)accessesSoFar));
             }else{//miss
                 cacheMisses++;
-                System.out.printf("%10s|%7s|%7s|%7s|%5s|%5d|%6d|%7d|%9.08f\n", obj.hexAddress, obj.tag, obj.index,
-                        Cache.getCacheAddrAtPos(obj.blockNum), "miss", cacheHits, cacheMisses, accessesSoFar,
+                System.out.printf("%10s|%7s|%7s|%7s|%5s|%5d|%6d|%7d|%9.08f\n", obj.hexAddress.toLowerCase(),
+                        obj.tag.toLowerCase(), obj.index.toLowerCase(),
+                        Cache.getCacheAddrAtPos(obj.blockNum).toLowerCase(),
+                        "miss", cacheHits, cacheMisses, accessesSoFar,
                         ((double)cacheMisses / (double)accessesSoFar));
             }
             Cache.addMemToCache(obj.tag, obj.blockNum);
