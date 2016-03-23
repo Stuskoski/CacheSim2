@@ -23,7 +23,8 @@ public class memoryObj {
     }
 
     public String calcTag(){
-        int dec;
+        long dec;
+        //int dec;
         int addZeros = 0;
         String hex;
         String bin;
@@ -34,13 +35,17 @@ public class memoryObj {
         if(isHex){ //convert dec to hex if address is not in hex already
             hex = address;
             hexAddress = hex;
-            dec = Integer.parseInt(hex, 16);
-            bin = Integer.toBinaryString(dec);
+            //dec = Integer.parseInt(hex, 16);
+            //bin = Integer.toBinaryString(dec);
+            dec = Long.parseLong(hex, 16);
+            bin = Long.toBinaryString(dec);
         }else{
-            dec = Integer.parseInt(address);
-            hex = Integer.toHexString(dec);
+            //dec = Integer.parseInt(address);
+            //hex = Integer.toHexString(dec);
+            dec = Long.parseLong(address);
+            hex = Long.toHexString(dec);
             hexAddress = hex;
-            bin = Integer.toBinaryString(dec);
+            bin = Long.toBinaryString(dec);
         }
 
         if(bin.length() < Main.memAddrLength){
@@ -68,27 +73,27 @@ public class memoryObj {
         temp = tagLoc+indexLoc;
 
         if(temp.equals("")){
-            blockAddr = Integer.toHexString(0);
+            blockAddr = Long.toHexString(0);
         }else{
-            blockAddr = Integer.toHexString(Integer.parseInt(temp,2));
+            blockAddr = Long.toHexString(Long.parseLong(temp,2));
         }
 
         if(tagLoc.equals("")){
-            tag = Integer.toHexString(0);
+            tag = Long.toHexString(0);
         }else{
-            tag = Integer.toHexString(Integer.parseInt(tagLoc,2));
+            tag = Long.toHexString(Long.parseLong(tagLoc,2));
         }
 
         if(indexLoc.equals("")){
-            index = Integer.toHexString(0);
+            index = Long.toHexString(0);
         }else{
-            index = Integer.toHexString(Integer.parseInt(indexLoc,2));
+            index = Long.toHexString(Long.parseLong(indexLoc,2));
         }
 
         if(offsetLoc.equals("")){
-            offset = Integer.toHexString(0);
+            offset = Long.toHexString(0);
         }else{
-            offset = Integer.toHexString(Integer.parseInt(offsetLoc,2));
+            offset = Long.toHexString(Long.parseLong(offsetLoc,2));
         }
 
 

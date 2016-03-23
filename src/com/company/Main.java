@@ -24,7 +24,10 @@ public class Main {
     public static int memAddrLength = 32;
 
 
+
     public static void main(String[] args) {
+        //int testing = 4294967296;
+        //Integer testing = 4294967296;
         /**
          * quick check for correct number of parameters
          */
