@@ -12,9 +12,11 @@ public class memoryObj {
     public String tag;
     public String index;
     public String offset;
-    public int blockNum;
+    public int blockNum, setNum;
     public String blockAddr;
     public boolean isHex;
+    public int time;
+    public int lastAccessed;
 
     //Constructor
     public memoryObj(String addr, boolean isHexBool){
@@ -61,13 +63,21 @@ public class memoryObj {
         bin = addingZeros + bin;
         //System.out.println(bin);
 
-        tagLoc = bin.substring(0, Main.tagSize-1);
+        /**
+         * String conversions between binary, long ints, and
+         * hex with some error catching involved.
+         */
+        //System.out.println(bin);
+        //System.out.println(Main.tagSize-1);
+        tagLoc = bin.substring(0, Main.tagSize);
+        //System.out.println(tagLoc);
         if(Main.index == 0){
             indexLoc = "";
         }else{
-            indexLoc = bin.substring(Main.tagSize, Main.tagSize+Main.index-1);
+            indexLoc = bin.substring(Main.tagSize, Main.tagSize+Main.index);
+            //System.out.println(indexLoc);
         }
-        offsetLoc = bin.substring(Main.tagSize+Main.index, bin.length()-1);
+        offsetLoc = bin.substring(Main.tagSize+Main.index, bin.length());
 
         String temp;
         temp = tagLoc+indexLoc;
@@ -96,10 +106,13 @@ public class memoryObj {
             offset = Long.toHexString(Long.parseLong(offsetLoc,2));
         }
 
-
-
-
         blockNum = Integer.parseInt(index, 16);
+
+        if(!(Main.numOfSets == 0)){
+            setNum = Integer.parseInt(blockAddr, 16)%Main.numOfSets;
+        }else{
+            setNum = 1;
+        }
 
         return hex;
     }

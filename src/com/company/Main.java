@@ -7,21 +7,24 @@ import java.util.ArrayList;
 
 public class Main {
 
-    private static ArrayList<memoryObj> memoryObjs = new ArrayList<>();
+    public static ArrayList<memoryObj> memoryObjs = new ArrayList<>();
     private static int n;
-    private static int m;
+    private static int m, p, associativity;
     private static int cacheSize;
     private static int blockSize;
     private static int numOfBlocks;
     private static boolean traceFlag;
     private static File filePath;
+    private static String queType;
     public static int index;
     public static int offset;
     public static int tagSize;
-    private static int cacheHits = 0;
-    private static int cacheMisses = 0;
-    private static int accessesSoFar = 0;
+    public static int cacheHits = 0;
+    public static int cacheMisses = 0;
+    public static int accessesSoFar = 0;
     public static int memAddrLength = 32;
+    public static int numOfSets = 1;
+    public static ArrayList<CacheWithSets> setList = new ArrayList<>();
 
 
 
@@ -31,7 +34,7 @@ public class Main {
         /**
          * quick check for correct number of parameters
          */
-        if(args.length != 4){
+        if(args.length != 6){
             System.out.println("Incorrect number of parameters.");
             System.exit(0);
         }
@@ -41,19 +44,36 @@ public class Main {
          */
         n = Integer.parseInt(args[0]);
         m = Integer.parseInt(args[1]);
+        p = Integer.parseInt(args[2]);
         cacheSize = (int) Math.pow(2, (double)n);
         blockSize = (int) Math.pow(2, (double)m);
         traceFlag = false; //true == on, false == off
-        filePath = new File(args[3]); //check for valid filepath later
+        filePath = new File(args[5]); //check for valid filepath later
+        queType = args[3].toLowerCase(); // fifo/lru
 
+        /**
+         * Quick check for fifo or lru ques
+         */
+        if(!(queType.equals("fifo")) && !(queType.equals("lru"))){
+            System.out.println("Incorrect que type[+"+queType+"].  Accepted values: fifo/lru");
+        }
+
+        /**
+         * Quick check for the variable p for fully associative
+         */
+        if(p<0 || p > (n-m)){
+            p = n-m;
+        }
+
+        associativity = (int)Math.pow(2, (double)p); // After check, assign the associativity
 
         /**
          * Get the on or off flag.  If neither, exit.
          */
-        if(args[2].toLowerCase().equals("on")){
+        if(args[4].toLowerCase().equals("on")){
             traceFlag = true;
         }
-        else if(args[2].toLowerCase().equals("off")){
+        else if(args[4].toLowerCase().equals("off")){
             traceFlag = false;
         }
         else{
@@ -65,7 +85,7 @@ public class Main {
          * quick check to see if file exists. Else exit.
          */
         if(!filePath.exists()){
-            System.out.println("File: " + args[3] + " does not exist.");
+            System.out.println("File: " + args[5] + " does not exist.");
             System.exit(0);
         }
 
@@ -79,6 +99,12 @@ public class Main {
         index = (int)(Math.log((double)numOfBlocks) / (Math.log(2)));
         offset = (int)(Math.log((double)blockSize) / (Math.log(2)));
 
+        numOfSets = numOfBlocks / associativity; // ex) 8192 blocks / 16(p^4) associativity = 512 sets
+
+        //create numOfSets of caches...these represent your cache sets
+        for(int x = 0; x < numOfSets; x++){
+            setList.add(new CacheWithSets(associativity));
+        }
 
         tagSize = memAddrLength - index - offset;
 
@@ -178,23 +204,9 @@ public class Main {
         for(memoryObj obj : memoryObjs){
             accessesSoFar++;
             obj.calcTag(); // calc all the necessary info about the memory address
-            if(Cache.checkForMissOrHit(obj.tag, obj.blockNum)){//hit
-                cacheHits++;
-
-                System.out.printf("%10s|%7s|%7s|%7s|%5s|%5d|%6d|%7d|%9.08f\n", obj.hexAddress.toLowerCase(),
-                        obj.tag.toLowerCase(), obj.index.toLowerCase(),
-                        Cache.getCacheAddrAtPos(obj.blockNum).toLowerCase(),
-                        "hit", cacheHits, cacheMisses, accessesSoFar,
-                        ((double)cacheMisses / (double)accessesSoFar));
-            }else{//miss
-                cacheMisses++;
-                System.out.printf("%10s|%7s|%7s|%7s|%5s|%5d|%6d|%7d|%9.08f\n", obj.hexAddress.toLowerCase(),
-                        obj.tag.toLowerCase(), obj.index.toLowerCase(),
-                        Cache.getCacheAddrAtPos(obj.blockNum).toLowerCase(),
-                        "miss", cacheHits, cacheMisses, accessesSoFar,
-                        ((double)cacheMisses / (double)accessesSoFar));
-            }
-            Cache.addMemToCache(obj.tag, obj.blockNum);
+            //System.out.println("SET NUM: " + obj.setNum + "     INDEX: " + obj.index);
+            //sets are from 0 to max
+            setList.get(obj.setNum).checkForMissOrHit(obj, obj.blockNum, queType, true); //true = print info
         }
     }
 
@@ -208,12 +220,7 @@ public class Main {
         for(memoryObj obj : memoryObjs){
             accessesSoFar++;
             obj.calcTag(); // calc all the necessary info about the memory address
-            if(Cache.checkForMissOrHit(obj.tag, obj.blockNum)){//hit
-                cacheHits++;
-            }else{//miss
-                cacheMisses++;
-            }
-            Cache.addMemToCache(obj.tag, obj.blockNum);
+            setList.get(obj.setNum).checkForMissOrHit(obj, obj.blockNum, queType, false); // false = don't print
         }
     }
 
