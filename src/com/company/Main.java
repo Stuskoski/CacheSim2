@@ -9,14 +9,14 @@ public class Main {
 
     public static ArrayList<memoryObj> memoryObjs = new ArrayList<>();
     private static int n;
-    private static int m, p, associativity;
+    private static int m, p;
     private static int cacheSize;
     private static int blockSize;
     private static int numOfBlocks;
     private static boolean traceFlag;
     private static File filePath;
     private static String queType;
-    public static int index;
+    public static int index, associativity;
     public static int offset;
     public static int tagSize;
     public static int cacheHits = 0;
@@ -99,7 +99,12 @@ public class Main {
         index = (int)(Math.log((double)numOfBlocks) / (Math.log(2)));
         offset = (int)(Math.log((double)blockSize) / (Math.log(2)));
 
-        numOfSets = numOfBlocks / associativity; // ex) 8192 blocks / 16(p^4) associativity = 512 sets
+        if(associativity == 0){
+            numOfSets = 0;
+        }else{
+            numOfSets = numOfBlocks / associativity; // ex) 8192 blocks / 16(p^4) associativity = 512 sets
+        }
+
 
         //create numOfSets of caches...these represent your cache sets
         for(int x = 0; x < numOfSets; x++){
@@ -113,19 +118,14 @@ public class Main {
         //System.out.println("offset: "+offset);
         //System.out.println("tagSize: "+tagSize);
 
-        //Create cache since number of blocks is known now
-        Cache.cacheBlocks = numOfBlocks;
-        Cache.createCache();
-
-
         getMemoryAddresses(filePath);
 
         String sep = "-----------------------------------------------------------------------";
         //System.out.println(sep.length());
 
         if(traceFlag){
-            System.out.printf("%10s|%7s|%7s|%7s|%5s|%5s|%5s|%7s|%9s\n", "Addr", "Tag", "Block#", "C Tag",
-                    "H/M", "Hits", "Misses", "MemAcc", "Miss %");
+            System.out.printf("%10s|%7s|%7s|%5s|%5s|%5s|%7s|%9s|  %s\n", "Addr", "Tag", "set", "H/M",
+                    "Hits", "Misses", "MemAcc", "Miss %", "Tags");
             //System.out.println(test);
             System.out.println(sep);
             runWithTracingOn();
@@ -204,6 +204,7 @@ public class Main {
         for(memoryObj obj : memoryObjs){
             accessesSoFar++;
             obj.calcTag(); // calc all the necessary info about the memory address
+            obj.time = accessesSoFar;
             //System.out.println("SET NUM: " + obj.setNum + "     INDEX: " + obj.index);
             //sets are from 0 to max
             setList.get(obj.setNum).checkForMissOrHit(obj, obj.blockNum, queType, true); //true = print info

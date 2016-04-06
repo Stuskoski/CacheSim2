@@ -2,6 +2,8 @@ package com.company;
 
 /**
  * Created by augustus on 4/5/16.
+ * Cache object with the with the number
+ * of blocks
  */
 public class CacheWithSets {
     public int cacheBlocks;
@@ -33,32 +35,63 @@ public class CacheWithSets {
             Main.cacheHits++;
 
             if(printFlag) {
-                System.out.printf("%10s|%7s|%7d|%7s|%5s|%5d|%6d|%7d|%9.08f\n", obj.hexAddress.toLowerCase(),
-                        obj.tag.toLowerCase(), obj.setNum,
-                        Cache.getCacheAddrAtPos(obj.blockNum).toLowerCase(),
-                        "hit", Main.cacheHits, Main.cacheMisses, Main.accessesSoFar,
-                        ((double) Main.cacheMisses / (double) Main.accessesSoFar));
+                if(Main.associativity == 1){
+                    System.out.printf("%10s|%7s|%7d|%5s|%5d|%6d|%7d|%9.08f|  %s\n", obj.hexAddress.toLowerCase(),
+                            obj.tag.toLowerCase(), 0,
+                            "hit", Main.cacheHits, Main.cacheMisses, Main.accessesSoFar,
+                            ((double) Main.cacheMisses / (double) Main.accessesSoFar),
+                            getTags());
+                }else{
+                    System.out.printf("%10s|%7s|%7d|%5s|%5d|%6d|%7d|%9.08f|  %s\n", obj.hexAddress.toLowerCase(),
+                            obj.tag.toLowerCase(), obj.setNum,
+                            "hit", Main.cacheHits, Main.cacheMisses, Main.accessesSoFar,
+                            ((double) Main.cacheMisses / (double) Main.accessesSoFar),
+                            getTags());
+                }
             }
 
             if(queType.equals("lru")){ //Only move the position if LRU, FIFO it would stay in place
-                addMemory(obj, queType, "hit", position);
+                addMemory(obj, queType, "hit", position, cacheArray[position].time);
             }
         }else{ //there was a miss
             Main.cacheMisses++;
 
             if(printFlag) {
-                System.out.printf("%10s|%7s|%7d|%7s|%5s|%5d|%6d|%7d|%9.08f\n", obj.hexAddress.toLowerCase(),
-                        obj.tag.toLowerCase(), obj.setNum,
-                        Cache.getCacheAddrAtPos(obj.blockNum).toLowerCase(),
-                        "miss", Main.cacheHits, Main.cacheMisses, Main.accessesSoFar,
-                        ((double) Main.cacheMisses / (double) Main.accessesSoFar));
+                if(Main.associativity == 1){
+                    System.out.printf("%10s|%7s|%7d|%5s|%5d|%6d|%7d|%9.08f|  %s\n", obj.hexAddress.toLowerCase(),
+                            obj.tag.toLowerCase(), 0,
+                            "miss", Main.cacheHits, Main.cacheMisses, Main.accessesSoFar,
+                            ((double) Main.cacheMisses / (double) Main.accessesSoFar),
+                            getTags());
+                }else{
+                    System.out.printf("%10s|%7s|%7d|%5s|%5d|%6d|%7d|%9.08f|  %s\n", obj.hexAddress.toLowerCase(),
+                            obj.tag.toLowerCase(), obj.setNum,
+                            "miss", Main.cacheHits, Main.cacheMisses, Main.accessesSoFar,
+                            ((double) Main.cacheMisses / (double) Main.accessesSoFar),
+                            getTags());
+                }
+
             }
 
-            addMemory(obj, queType, "miss", position);
+            addMemory(obj, queType, "miss", position, 0);//0 is not used in misses
         }
     }
 
-    public void addMemory(memoryObj obj, String queType, String hitOrMiss, int position){
+    private String getTags() {
+        String str = "";
+
+        for(int i = 0; i<cacheBlocks; i++){
+            if(cacheArray[i]!=null){
+                str+=cacheArray[i].tag+"("+cacheArray[i].time+"),";
+            }
+        }
+        if (str.length() > 0 && str.charAt(str.length()-1)==',') {
+            str = str.substring(0, str.length()-1);
+        }
+        return str;
+    }
+
+    public void addMemory(memoryObj obj, String queType, String hitOrMiss, int position, int time){
         switch (queType){
             case "lru":{
                 int counter = 0;
@@ -69,6 +102,7 @@ public class CacheWithSets {
                     counter++;
                 }
                 if(hitOrMiss.equals("hit")) {
+                    obj.time = time;
                     if (counter == cacheBlocks) {//set is full
                         if (position + 1 != cacheBlocks) {//block is not at the end of the que so need to move it there
                            // memoryObj temp = cacheArray[position];
